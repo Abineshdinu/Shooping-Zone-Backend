@@ -4,7 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon index.js"
+    "start": "nodemon index.js",
+    "dev": "set NODE_ENV = development&&nodemon shooping-zone-backend/index.js",
+    "prod": "set NODE_ENV = production&&nodemon shooping-zone-backend/index.js",
+    "seeder": "node utils/seeder.js"
   },
   "keywords": [],
   "author": "",
