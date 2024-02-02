@@ -10,9 +10,11 @@ dotenv.config({path:path.join(__dirname,"config/config.env")});
 
 app.use(express.json());
 const products = require('./routes/product')
-app.use('/api',products)
+const auth = require('./routes/auth')
+app.use('/api',products,auth)
+
 
 app.use(errormiddleware)
 
 module.exports = app;
-// 
+
