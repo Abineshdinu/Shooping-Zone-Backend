@@ -70,15 +70,15 @@ exports.forgotPassword = catchAsyncError(async (req, res, net) => {
 
   try {
     sendEmail({
-      email:user.email,
-      subject:"Shopping-Zone-Password-Recovery",
-      message
+      email: user.email,
+      subject: "Shopping-Zone-Password-Recovery",
+      message,
     });
 
     res.status(200).json({
-      success:true,
-      message:`Email sent to ${user.email} `
-    })
+      success: true,
+      message: `Email sent to ${user.email} `,
+    });
   } catch (error) {
     user.resetPasswordToken = undefined;
     user.resetPasswordTokenExpire = undefined;

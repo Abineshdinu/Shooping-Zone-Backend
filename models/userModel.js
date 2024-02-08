@@ -1,8 +1,8 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
-const bcyrpt = require("bcrypt")
-const jwt = require("jsonwebtoken")
-const crypto = require("crypto")
+const bcyrpt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const crypto = require("crypto");
 const userSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -18,7 +18,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: [true, "Please Enter Password"],
     maxLength: [6, "Password Cannot Exceed 6 Characters"],
-    select: false
+    select: false,
   },
   avatar: {
     type: String,
@@ -37,30 +37,31 @@ const userSchema = new mongoose.Schema({
     default: Date.now,
   },
 });
-userSchema.pre('save', async function (next){
-  if(!this.isModified('password')){
-      next();
+userSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) {
+    next();
   }
-  this.password  = await bcrypt.hash(this.password, 10)
-})
+  this.password = await bcrypt.hash(this.password, 10);
+});
 
+userSchema.methods.getJwtToken = function () {
+  return jwt.sign({ id: this.id }, process.env.JWT_SECRET, {
+    expiresIn: process.env.JWT_EXPIRES_TIME,
+  });
+};
 
-userSchema.methods.getJwtToken = function(){
-  return jwt.sign({id: this.id},process.env.JWT_SECRET,{
-    expiresIn:process.env.JWT_EXPIRES_TIME 
-  })
-}
+userSchema.methods.isValidPassword = async function (enteredpassword) {
+  return await bcyrpt.compare(enteredpassword, this.password);
+};
 
-userSchema.methods.isValidPassword = async function(enteredpassword){
-return await bcyrpt.compare(enteredpassword,this.password)
-}
- 
-userSchema.methods.getResetToken = function(){
- const token =  crypto.randomBytes(15).toString('hex');
- this.resetPasswordToken = crypto.createHash('sha256').update(token).digest('hex');
- this.resetPasswordTokenExpire = Date.now()+30 * 60 * 1000
- return token
-
-}
-let model = mongoose.model('User',userSchema);
+userSchema.methods.getResetToken = function () {
+  const token = crypto.randomBytes(15).toString("hex");
+  this.resetPasswordToken = crypto
+    .createHash("sha256")
+    .update(token)
+    .digest("hex");
+  this.resetPasswordTokenExpire = Date.now() + 30 * 60 * 1000;
+  return token;
+};
+let model = mongoose.model("User", userSchema);
 module.exports = model;
