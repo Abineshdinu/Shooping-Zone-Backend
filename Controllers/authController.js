@@ -113,3 +113,101 @@ exports.resetPassword = catchAsyncError(async (req, res, next) => {
   await user.save({ validateBeforeSave: false });
   Token(user, 201, res);
 });
+
+// get user profile
+
+exports.getUserProfile = catchAsyncError(async (req, res, next) => {
+  const user = await User.findById(req.user.id);
+  res.status(200).json({
+    success: true,
+    user,
+  });
+});
+
+//change-password
+
+exports.changePassword = catchAsyncError(async (req, res, next) => {
+  const user = await User.findById(req.user.id).select("+password");
+  //check-old-pas
+
+  if (!(await user.isValidPassword(req.body.oldPassword))) {
+    return next(new ErrorHandler("Old Password Is Incorrect", 401));
+  }
+  //new password
+
+  user.password = req.body.password;
+  await user.save();
+  res.status(200).json({
+    success: true,
+  });
+});
+
+exports.updateProfile = catchAsyncError(async (req, res, next) => {
+  const update = {
+    name: req.body.name,
+    email: req.body.email,
+  };
+  const user = await User.findByIdAndUpdate(req.user.id, update, {
+    new: true,
+    runValidators: true,
+  });
+  res.status(200).json({
+    success: true,
+    user,
+  });
+});
+
+// admin-get-all-users
+
+exports.getAllUsers = catchAsyncError(async (req, res, next) => {
+  const users = await User.find();
+  res.status(200).json({
+    success: true,
+    users,
+  });
+});
+
+// admin /get-Single-User
+
+exports.getSingleUser = catchAsyncError(async (req, res, next) => {
+  const user = await User.findById(req.params.id);
+  if (!user) {
+    return next(new ErrorHandler(`User Not Found With this Id`));
+  }
+
+  res.status(200).json({
+    success: true,
+    user,
+  });
+});
+
+exports.updateUser = catchAsyncError(async (req, res, next) => {
+  const update = {
+    name: req.body.name,
+    email: req.body.email,
+    role: req.body.role,
+  };
+  const user = await User.findByIdAndUpdate(req.params.id, update, {
+    new: true,
+    runValidators: true,
+  });
+  res.status(200).json({
+    success: true,
+    message: "Upadted SuccessFully",
+  });
+});
+
+//admin / delete-user
+
+exports.deleteUser = catchAsyncError(async (req, res, next) => {
+  const user = await User.findById(req.params.id);
+
+  if (!user) {
+    return next(new ErrorHandler(`User Not Found ${req.params.id}`));
+  }
+  await user.deleteOne();
+  res.status(200).json({
+    success: true,
+    message: "User Deleted SuccessFully ",
+  });
+});
