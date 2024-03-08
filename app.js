@@ -9,9 +9,11 @@ dotenv.config({ path: path.join(__dirname, "config/config.env") });
 
 app.use(express.json());
 app.use(cookieParser());
+
 const products = require("./routes/product");
 const auth = require("./routes/auth");
-app.use("/api", products, auth);
+const order = require("./routes/order")
+app.use("/api", products, auth, order);
 
 app.use(errormiddleware);
 
